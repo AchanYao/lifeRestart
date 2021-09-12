@@ -141,7 +141,7 @@ class App{
             <div class="head" style="font-size: 1.6rem">天赋抽卡</div>
             <button id="random" class="mainbtn" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);"">10连抽！</button>
             <ul id="talents" class="selectlist"></ul>
-            <button id="next" class="mainbtn">请选择3个</button>
+            <button id="next" class="mainbtn">请选择天赋</button>
         </div>
         `);
 
@@ -149,35 +149,37 @@ class App{
             return $(`<li class="grade${grade}b">${name}（${description}）</li>`)
         };
 
+        const maxTalentCount = 10;
+
         talentPage
             .find('#random')
-            .click(()=>{
+            .click(() => {
                 talentPage.find('#random').hide();
                 const ul = talentPage.find('#talents');
                 this.#life.talentRandom()
-                    .forEach(talent=>{
+                    .forEach(talent => {
                         const li = createTalent(talent);
                         ul.append(li);
-                        li.click(()=>{
-                            if(li.hasClass('selected')) {
+                        li.click(() => {
+                            if (li.hasClass('selected')) {
                                 li.removeClass('selected')
                                 this.#talentSelected.delete(talent);
-                                if(this.#talentSelected.size<3) {
-                                    talentPage.find('#next').text('请选择3个')
+                                if (this.#talentSelected.size == 0) {
+                                    talentPage.find('#next').text('请选择天赋')
                                 }
                             } else {
-                                if(this.#talentSelected.size==3) {
-                                    this.hint('只能选3个天赋');
+                                if (this.#talentSelected.size == maxTalentCount) {
+                                    this.hint(`只能选${maxTalentCount}个天赋`);
                                     return;
                                 }
 
                                 const exclusive = this.#life.exclusive(
-                                    Array.from(this.#talentSelected).map(({id})=>id),
+                                    Array.from(this.#talentSelected).map(({ id }) => id),
                                     talent.id
                                 );
-                                if(exclusive != null) {
-                                    for(const { name, id } of this.#talentSelected) {
-                                        if(id == exclusive) {
+                                if (exclusive != null) {
+                                    for (const { name, id } of this.#talentSelected) {
+                                        if (id == exclusive) {
                                             this.hint(`与已选择的天赋【${name}】冲突`);
                                             return;
                                         }
@@ -186,7 +188,7 @@ class App{
                                 }
                                 li.addClass('selected');
                                 this.#talentSelected.add(talent);
-                                if(this.#talentSelected.size==3) {
+                                if (this.#talentSelected.size != 0) {
                                     talentPage.find('#next').text('开始新人生')
                                 }
                             }
@@ -197,13 +199,13 @@ class App{
 
         talentPage
             .find('#next')
-            .click(()=>{
-                if(this.#talentSelected.size!=3) {
-                    this.hint('请选择3个天赋');
+            .click(() => {
+                if (this.#talentSelected.size == 0) {
+                    this.hint('请选择天赋');
                     return;
                 }
                 talentPage.find('#next').hide()
-                this.#totalMax = 20 + this.#life.getTalentAllocationAddition(Array.from(this.#talentSelected).map(({id})=>id));
+                this.#totalMax = 20 + this.#life.getTalentAllocationAddition(Array.from(this.#talentSelected).map(({ id }) => id));
                 this.switch('property');
             })
 
@@ -286,58 +288,60 @@ class App{
             return {group, get, set};
         }
 
-        groups.CHR = getBtnGroups("颜值", 0, 10); // 颜值 charm CHR
-        groups.INT = getBtnGroups("智力", 0, 10); // 智力 intelligence INT
-        groups.STR = getBtnGroups("体质", 0, 10); // 体质 strength STR
-        groups.MNY = getBtnGroups("家境", 0, 10); // 家境 money MNY
+        const maxAllocation = 11
+
+        groups.CHR = getBtnGroups("颜值", 0, maxAllocation); // 颜值 charm CHR
+        groups.INT = getBtnGroups("智力", 0, maxAllocation); // 智力 intelligence INT
+        groups.STR = getBtnGroups("体质", 0, maxAllocation); // 体质 strength STR
+        groups.MNY = getBtnGroups("家境", 0, maxAllocation); // 家境 money MNY
 
         const ul = propertyPage.find('#propertyAllocation');
 
-        for(const type in groups) {
+        for (const type in groups) {
             ul.append(groups[type].group);
         }
 
         propertyPage
             .find('#random')
-            .click(()=>{
+            .click(() => {
                 let t = this.#totalMax;
-                const arr = [10, 10, 10, 10];
-                while(t>0) {
-                    const sub = Math.round(Math.random() * (Math.min(t, 10) - 1)) + 1;
-                    while(true) {
+                const arr = [maxAllocation, maxAllocation, maxAllocation, maxAllocation];
+                while (t > 0) {
+                    const sub = Math.round(Math.random() * (Math.min(t, maxAllocation) - 1)) + 1;
+                    while (true) {
                         const select = Math.floor(Math.random() * 4) % 4;
-                        if(arr[select] - sub <0) continue;
+                        if (arr[select] - sub < 0) continue;
                         arr[select] -= sub;
                         t -= sub;
                         break;
                     }
                 }
-                groups.CHR.set(10 - arr[0]);
-                groups.INT.set(10 - arr[1]);
-                groups.STR.set(10 - arr[2]);
-                groups.MNY.set(10 - arr[3]);
+                groups.CHR.set(maxAllocation - arr[0]);
+                groups.INT.set(maxAllocation - arr[1]);
+                groups.STR.set(maxAllocation - arr[2]);
+                groups.MNY.set(maxAllocation - arr[3]);
             });
 
         propertyPage
             .find('#start')
-            .click(()=>{
-                if(total() < this.#totalMax) {
-                    this.hint(`你还有${this.#totalMax-total()}属性点没有分配完`);
+            .click(() => {
+                if (total() < this.#totalMax) {
+                    this.hint(`你还有${this.#totalMax - total()}属性点没有分配完`);
                     return;
                 } else if (total() > this.#totalMax) {
                     this.hint(`你多使用了${total() - this.#totalMax}属性点`);
                     return;
                 }
-                const contents = this.#life.restart({
+                this.#life.restart({
                     CHR: groups.CHR.get(),
                     INT: groups.INT.get(),
                     STR: groups.STR.get(),
                     MNY: groups.MNY.get(),
-                    SPR: 5,
-                    TLT: Array.from(this.#talentSelected).map(({id})=>id),
+                    SPR: 6,
+                    TLT: Array.from(this.#talentSelected).map(({ id }) => id),
                 });
                 this.switch('trajectory');
-                this.#pages.trajectory.born(contents);
+                this.#pages.trajectory.born();
                 // $(document).keydown(function(event){
                 //     if(event.which == 32 || event.which == 13){
                 //         $('#lifeTrajectory').click();
@@ -471,7 +475,7 @@ class App{
                 <li class="grade0"><span>快乐：</span><span></span>3级 不太幸福的人生</li>
             </ul>
             <div class="head" style="height:auto;">天赋，你可以选一个，下辈子还能抽到</div>
-            <ul id="talents" class="selectlist" style="flex: 0 1 auto;">
+            <ul id="talents" class="selectlist" style="flex: 0 1 auto; max-height: 15%; overflow-y: auto;">
                 <li class="grade2b">黑幕（面试一定成功）</li>
             </ul>
             <button id="again" class="mainbtn"><span class="iconfont">&#xe6a7;</span>再次重开</button>
