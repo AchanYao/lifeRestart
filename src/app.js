@@ -218,7 +218,7 @@ class App{
                 <div id="total" style="font-size:1rem; font-weight:normal;">可用属性点：0</div>
             </div>
             <ul id="propertyAllocation" class="propinitial"></ul>
-            <ul class="selectlist" id="talentSelectedView"></ul>
+            <ul class="selectlist" id="talentSelectedView" style="overflow-y: auto; max-height: 21%;"></ul>
             <div class="btn-area">
                 <button id="random" class="mainbtn">随机分配</button>
                 <button id="start" class="mainbtn">开始新人生</button>
@@ -332,7 +332,7 @@ class App{
                     this.hint(`你多使用了${total() - this.#totalMax}属性点`);
                     return;
                 }
-                this.#life.restart({
+                const contents = this.#life.restart({
                     CHR: groups.CHR.get(),
                     INT: groups.INT.get(),
                     STR: groups.STR.get(),
@@ -341,7 +341,7 @@ class App{
                     TLT: Array.from(this.#talentSelected).map(({ id }) => id),
                 });
                 this.switch('trajectory');
-                this.#pages.trajectory.born();
+                this.#pages.trajectory.born(contents);
                 // $(document).keydown(function(event){
                 //     if(event.which == 32 || event.which == 13){
                 //         $('#lifeTrajectory').click();
