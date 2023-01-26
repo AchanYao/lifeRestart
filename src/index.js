@@ -4,7 +4,7 @@ globalThis.$$eventMap = new Map();
 globalThis.$$event = (tag, data) => {
     const listener = $$eventMap.get(tag);
     if(listener) listener.forEach(fn=>fn(data));
-}
+};
 globalThis.$$on = (tag, fn) => {
     let listener = $$eventMap.get(tag);
     if(!listener) {
@@ -12,16 +12,16 @@ globalThis.$$on = (tag, fn) => {
         $$eventMap.set(tag, listener);
     }
     listener.add(fn);
-}
+};
 globalThis.$$off = (tag, fn) => {
     const listener = $$eventMap.get(tag);
     if(listener) listener.delete(fn);
-}
+};
 
-globalThis.json = async fileName => await (await fetch(`https://liferestart.syaro.io/data/${fileName}.json`)).json();
+globalThis.json = async fileName => await (await fetch(`https://liferestart.syaro.io/public/data/zh-cn/${fileName}.json`)).json();
 
 // Pssst, I've created a github package - https://github.com/brookesb91/dismissible
-globalThis.hideBanners = (e) => {
+globalThis.hideBanners = () => {
     document
         .querySelectorAll(".banner.visible")
         .forEach((b) => b.classList.remove("visible"));
