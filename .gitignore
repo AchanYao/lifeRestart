@@ -110,5 +110,3 @@ utils/xlsxTransform-*
 __localStorage.json
 
 .vscode/
-public/chunk/
-public/index.html
