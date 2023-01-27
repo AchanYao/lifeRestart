@@ -29,3 +29,13 @@ jobs:
     - run: npm install
     - run: npm run build --if-present
     - run: npm test
+      # Standard usage
+    - uses: helaili/jekyll-action@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Specify the target branch (optional)
+    - uses: helaili/jekyll-action@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        target_branch: 'master'
